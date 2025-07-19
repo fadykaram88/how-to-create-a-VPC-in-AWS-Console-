@@ -3,6 +3,7 @@
 
 
 ---
+![VPC Architecture](https://github.com/fadykaram88/how-to-create-a-VPC-in-AWS-Console-/blob/main/Final-arc.png?raw=true)
 
 ## 🧭 What is a VPC?
 

@@ -1,0 +1,120 @@
+project 3
+how to create a VPC in AWS Console ?
+.....................................
+1 - but first what is VPC ?
+it is a Virtual private Cloud . it is logically isolated from other virtual networks in the AWS Cloud . You can launch AWS resources such as EC2 into the VPC . also you can create subnets inside VPC 
+Subnets : sub-network  small part inside the VPC 
+we can put the server inside subnet 1 also we can put the database in subnet 2 
+we can make the subnet public or private to the internet  
+2 - the components of VPC  ?
+CIDR Block : it is the network address of the Security group 
+Route tables : it defines how the IP address is routed inside the VPC 
+Internet gateway : if you want to make the subnet connect to the internet so use Internet gateway 
+NAT gateway : it makes the Subnets private to some IP address 
+Security group : it controls the flow of the IP address inside the instance 
+Network ACLs : it controls the flow of the IP address inside the subnet 
+......................
+Let's come back to the task  
+how to create a VPC ? 
+1 -Search about VPC 
+2- then choose Your VPCs then choose Create VPC 
+Name tag - optional : Lab VPC
+IPv4 CIDR : 10.0.0.0/16 
+3- then Create VPC 
+4 - then come back to Your VPCs and choose the VPC you have created and choose Actions and choose Edit VPC settings 
+5 - DNS settings 
+Enable DNS hostnames  then save 
+small note : if you want to give the instance name to search about it in google in easy way instead of writing the IP address of the EC2 instance use Route 53 to give a name to the instance 
+New TASK : creating subnets Public and Private 
+how to create a Public subnet 
+6 - In the left choose subnets  then choose create subnet
+VPC ID : Lab VPC
+Subnet name : Public Subnet
+Availability Zone = AZ 
+AZ : us-east-1a
+IPv4 subnet CIDR block : 10.0.0.0/24 
+7 - Create Subnet 
+8 - choose Public subnet then choose Actions then Edit subnet settings 
+9 - Enable auto-assign public IPv4 address 
+then save 
+10 - let's create private subnet 
+choose create subnet 
+VPC ID : Lab VPC 
+Subnet name : Private subnet 
+AZ : us-east-1a
+IPv4 subnet CIDR block : 10.0.2.0/23
+11 - create subnet 
+12 - let's create internet gateway 
+it allows communication between the instances in a VPC and the internet 
+13 - choose internet gateway in the left  then create internet gateway 
+Name tag : Lab IGW  then create internet gateway 
+let's attach the internet gateway to the VPC I have created
+14 - choose Actions then Attach to VPC  and choose Lab VPC  then choose Attach internet gateway 
+now I must configure the public subnet route table so the public subnet can use the internet 
+new task 
+configuring route tables 
+A route table contains of rules called routes , used to determine where network traffic is directed 
+each subnet in a VPC must be associated with a route table to control the traffic flow 
+note : you can associate one route table with the same route table 
+15 - in the left choose Route tables then choose the route table which its VPC is Lab VPC and edit the name by writing ( Private Route Table) then save 
+16 - choose Create route table 
+Name - optional : Public Route Table
+VPC : Lab VPC 
+17 - Then Create route table 
+18 - in the Routes tab choose Edit Routes then Choose Add route 
+Destination : 0.0.0.0/0
+Target : 0.0.0.0/0  then choose the option which is Lab IGW
+save changes 
+19 - choose Subnet associations  then Edit subnet associations and choose the public subnet then Save associations
+note : the public subnet now is public as we have a route table 
+20 - let's create a security group to the app server
+the security group control the traffic flow toward the instance 
+21 - choose security group on the left  then create security group 
+Security group name :  App-SG
+Description : Allow HTTP traffic
+VPC : Lab VPC 
+22 - Inbound rules
+choose add rule 
+Type : HTTP
+Source : Anywhere-IPv4
+Description : Allow web access 
+then create security group 
+23 - now let's launch an app server inside the public subnet  
+search about EC2 then choose Instances then launch instance 
+Name  : App server 
+APP and OS images : Amazon Linux AWS 
+AMI : Amazon Linux 2023 kernel-6.1 AMI 
+Instance type : t3.micro 
+Key pair name 
+Create new key pair 
+Key pair name : Vockey 
+Key pair type : RSA then choose .pem then create Key pair  then choose it 
+network settings choose edit 
+VPC : Lab VPC
+Subnet : public subnet 
+Firewall(security groups ) : Select existing security group then choose  App-SG 
+then you will see Advanced details 
+Expand it and go down until you see user data - optional 
+write this script  to run the app server 
+
+#!/bin/bash
+# Install Apache Web Server and PHP
+dnf install -y httpd wget php-fpm php-mysqli php-json php php-devel
+dnf install -y mariadb105-server
+# Download Lab files
+wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACACAD-3-113230/06-lab-mod7-guided-VPC/s3/scripts/al2023-inventory-app.zip -O inventory-app.zip
+unzip inventory-app.zip -d /var/www/html/
+# Download and install the AWS SDK for PHP
+wget https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.zip
+unzip aws.zip -d /var/www/html
+# Turn on web server
+systemctl enable httpd
+systemctl start httpd 
+
+then choose Launch instance 
+then wait until status check gets 3 /3 
+then take Public  DNS copy 
+and open it in other page and the app server will be open 
+24 - very important note #########
+the VPC we have created will be used in more than 15 projects .........
+25 - see you soon in other project so Goodbye ,
